@@ -8,10 +8,22 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
+
+class UserError {
+  @ApiProperty({
+    required: true,
+    enum: ['INVALID_NAME', 'INVALID_EMAIL'],
+  })
+  error: string;
+}
 
 @Controller('users')
 export class UsersController {
@@ -19,9 +31,9 @@ export class UsersController {
 
   @Post()
   @ApiOkResponse({ type: [User] })
-  @ApiBadRequestResponse({
+  @ApiInternalServerErrorResponse({
+    type: UserError,
     status: 400,
-    description: 'something went wrong',
   })
   create(@Body() createUserDto: CreateUserDto) {
     try {
